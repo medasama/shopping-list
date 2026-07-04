@@ -73,6 +73,16 @@
     outline:none;
     border-color:var(--accent);
   }
+  .add-row select{
+    padding:0 10px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    font-size:14px;
+    background:var(--card);
+    color:var(--ink);
+    flex:0 0 auto;
+    max-width:92px;
+  }
   .add-row button{
     padding:0 18px;
     border:none;
@@ -240,6 +250,7 @@
 
   <div class="add-row">
     <input type="text" id="itemInput" placeholder="例：牛乳、玉ねぎ..." autocomplete="off">
+    <select id="categorySelect"></select>
     <button id="addBtn">追加</button>
   </div>
 
@@ -369,15 +380,18 @@
     }
   });
 
+  const categorySelect = document.getElementById('categorySelect');
+  categorySelect.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+
   addBtn.addEventListener('click', ()=>{
-    addItem(itemInput.value, '食品');
+    addItem(itemInput.value, categorySelect.value);
     itemInput.value = '';
     itemInput.focus();
   });
 
   itemInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
-      addItem(itemInput.value, '食品');
+      addItem(itemInput.value, categorySelect.value);
       itemInput.value = '';
     }
   });
