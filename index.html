@@ -68,15 +68,6 @@
     position:relative;
     z-index:1;
   }
-  .header-deco{
-    position:absolute;
-    pointer-events:none;
-    z-index:0;
-  }
-  .header-deco--1{ top:8px; left:10px; width:34px; transform:rotate(-12deg); }
-  .header-deco--2{ top:4px; right:14px; width:34px; transform:scaleX(-1) rotate(10deg); }
-  .header-deco--3{ bottom:-6px; left:60px; width:26px; transform:rotate(8deg); opacity:0.9; }
-  .header-deco--4{ bottom:-10px; right:70px; width:28px; transform:scaleX(-1) rotate(-6deg); opacity:0.9; }
   .container{
     max-width:520px;
     margin:0 auto;
@@ -284,19 +275,12 @@
     pointer-events:none;
     z-index:-1;
   }
-  .bg-fish--br{ right:-22px; bottom:-14px; width:190px; opacity:0.95; transform:rotate(-6deg); }
-  .bg-fish--tl{ left:-28px; top:-8px; width:130px; opacity:0.5; transform:scaleX(-1) rotate(-10deg); }
-  .bg-fish--bl{ left:-18px; bottom:-16px; width:150px; opacity:0.9; transform:rotate(7deg); }
-  .bg-fish--bc{ left:50%; bottom:-10px; width:130px; opacity:0.8; transform:translateX(-50%) rotate(-4deg); }
-  .bg-fish--tr{ right:-14px; top:56px; width:100px; opacity:0.35; transform:rotate(10deg); }
+  .bg-fish--br{ right:-20px; bottom:-14px; width:190px; opacity:0.95; transform:rotate(-6deg); }
+  .bg-fish--bl{ left:-20px; bottom:-16px; width:150px; opacity:0.7; transform:scaleX(-1) rotate(7deg); }
 
   .around-fish{
     display:block;
     opacity:0.95;
-  }
-  .around-fish--left{
-    width:38px;
-    transform:scaleX(-1) rotate(-8deg);
   }
   .around-fish--footer{
     width:34px;
@@ -316,15 +300,10 @@
     flex:0 0 auto;
   }
 
-  .list-deco-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    margin-bottom:6px;
-  }
   .peek-fish{
     display:block;
-    width:44px;
+    width:48px;
+    margin:-6px 0 8px auto;
     transform:rotate(8deg);
     opacity:0.95;
   }
@@ -358,16 +337,9 @@
 </head>
 <body>
 <img class="bg-fish bg-fish--br" src="characters/ranchu.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--tl" src="characters/medaka.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--bl" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--bc" src="characters/medaka-wings.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--tr" src="characters/medaka-thumbsup.png" alt="" aria-hidden="true">
+<img class="bg-fish bg-fish--bl" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
 <header>
-  <img class="header-deco header-deco--1" src="characters/ranchu.png" alt="" aria-hidden="true">
-  <img class="header-deco header-deco--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-  <img class="header-deco header-deco--3" src="characters/medaka-thumbsup.png" alt="" aria-hidden="true">
-  <img class="header-deco header-deco--4" src="characters/medaka-wings.png" alt="" aria-hidden="true">
   <h1><img class="mascot-icon" src="characters/ranchu.png" alt=""> 買い物リスト</h1>
 </header>
 
@@ -385,24 +357,21 @@
 
   <div class="category-tabs" id="categoryTabs"></div>
 
-  <div class="list-deco-row">
-    <img class="around-fish around-fish--left" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-    <img class="peek-fish" src="characters/medaka.png" alt="" aria-hidden="true">
-  </div>
+  <img class="peek-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
   <ul class="list" id="list"></ul>
   <div class="empty" id="emptyMsg" style="display:none;">
     <div class="empty-mascots">
       <img class="empty-mascot empty-mascot--ranchu" src="characters/ranchu.png" alt="らんちゅう">
-      <img class="empty-mascot empty-mascot--medaka" src="characters/medaka.png" alt="メダカ">
+      <img class="empty-mascot empty-mascot--medaka" src="characters/medaka-main.png" alt="メダカ">
     </div>
     <p>リストはからっぽです<br>上から追加してね</p>
   </div>
 
-  <img class="around-fish around-fish--footer" src="characters/medaka-thumbsup.png" alt="" aria-hidden="true">
+  <img class="around-fish around-fish--footer" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 
   <div class="footer-row">
-    <span><img class="footer-fish" src="characters/medaka.png" alt="">
+    <span><img class="footer-fish" src="characters/medaka-kihon.png" alt="">
     <span id="countText">0件</span></span>
     <button id="clearCheckedBtn">完了済みを削除</button>
   </div>
