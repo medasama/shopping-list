@@ -313,8 +313,8 @@
     pointer-events:none;
     z-index:-1;
   }
-  .bg-fish--br{ right:6px; bottom:6px; width:165px; opacity:0.95; animation:bob-br 4.5s ease-in-out infinite; pointer-events:auto; cursor:pointer; }
-  .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; animation:bob-bl 5s ease-in-out infinite; animation-delay:0.3s; pointer-events:auto; cursor:pointer; }
+  .bg-fish--br{ right:6px; bottom:6px; width:165px; opacity:0.95; animation:bob-br 4.5s ease-in-out infinite; pointer-events:auto; cursor:pointer; z-index:1; }
+  .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; animation:bob-bl 5s ease-in-out infinite; animation-delay:0.3s; pointer-events:auto; cursor:pointer; z-index:1; }
   @keyframes bob-br{
     0%,100%{ transform:rotate(-6deg) translateY(0); }
     50%{ transform:rotate(-4deg) translateY(-6px); }
@@ -415,15 +415,20 @@
   .swim-lane{ position:relative; height:0; overflow:visible; }
   .swim-fish{
     position:absolute;
-    top:-14px;
     left:-60px;
-    width:50px;
     opacity:0;
     pointer-events:none;
   }
-  .swim-fish.swimming{
-    animation:swim-across 1.8s ease-in-out;
-  }
+  .swim-fish--1{ top:-30px; width:26px; }
+  .swim-fish--2{ top:-4px; width:32px; }
+  .swim-fish--3{ top:-46px; width:22px; }
+  .swim-fish--4{ top:14px; width:28px; }
+  .swim-fish--5{ top:-18px; width:24px; }
+  .swim-fish--1.swimming{ animation:swim-across 1.7s ease-in-out; }
+  .swim-fish--2.swimming{ animation:swim-across 2s ease-in-out 0.12s; }
+  .swim-fish--3.swimming{ animation:swim-across 1.85s ease-in-out 0.28s; }
+  .swim-fish--4.swimming{ animation:swim-across 2.15s ease-in-out 0.05s; }
+  .swim-fish--5.swimming{ animation:swim-across 1.95s ease-in-out 0.4s; }
   @keyframes swim-across{
     0%{ left:-60px; opacity:0; transform:translateY(0) rotate(0deg); }
     10%{ opacity:1; }
@@ -468,7 +473,11 @@
   <div class="category-tabs" id="categoryTabs"></div>
 
   <div class="swim-lane">
-    <img id="swimFish" class="swim-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
+    <img class="swim-fish swim-fish--1" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+    <img class="swim-fish swim-fish--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+    <img class="swim-fish swim-fish--3" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+    <img class="swim-fish swim-fish--4" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+    <img class="swim-fish swim-fish--5" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   </div>
 
   <img class="peek-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
@@ -597,10 +606,10 @@
   }
 
   function swimAcross(){
-    const el = document.getElementById('swimFish');
-    el.classList.remove('swimming');
-    void el.offsetWidth;
-    el.classList.add('swimming');
+    const fishes = document.querySelectorAll('.swim-fish');
+    fishes.forEach(el => el.classList.remove('swimming'));
+    void document.querySelector('.swim-lane').offsetWidth;
+    fishes.forEach(el => el.classList.add('swimming'));
   }
 
   function setupTapBounce(){
