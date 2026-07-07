@@ -60,14 +60,25 @@
     font-size:26px;
     font-weight:700;
     letter-spacing:0.04em;
+    -webkit-text-stroke:1.2px rgba(53,127,138,0.4);
     text-shadow:0 2px 0 rgba(0,0,0,0.08);
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:8px;
+    gap:10px;
     position:relative;
     z-index:1;
   }
+  .header-sparkle{
+    position:absolute;
+    pointer-events:none;
+    z-index:0;
+  }
+  .header-sparkle--1{ top:16px; left:64px; width:16px; transform:rotate(-10deg); }
+  .header-sparkle--2{ top:22px; right:80px; width:13px; transform:rotate(12deg); }
+  .header-sparkle--3{ bottom:18px; left:104px; width:11px; transform:rotate(6deg); }
+  .header-sparkle--4{ bottom:22px; right:112px; width:15px; transform:rotate(-14deg); }
+  .mascot-icon--medaka{ object-position:38% 42%; }
   .container{
     max-width:520px;
     margin:0 auto;
@@ -340,7 +351,15 @@
 <img class="bg-fish bg-fish--bl" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
 <header>
-  <h1><img class="mascot-icon" src="characters/ranchu.png" alt=""> 買い物リスト</h1>
+  <svg class="header-sparkle header-sparkle--1" viewBox="0 0 24 24" fill="#ffe9a8" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>
+  <svg class="header-sparkle header-sparkle--2" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.5 1.2 4 2.5C10.5 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
+  <svg class="header-sparkle header-sparkle--3" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>
+  <svg class="header-sparkle header-sparkle--4" viewBox="0 0 24 24" fill="#ffe9a8" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.5 1.2 4 2.5C10.5 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
+  <h1>
+    <img class="mascot-icon" src="characters/ranchu.png" alt="">
+    買い物リスト
+    <img class="mascot-icon mascot-icon--medaka" src="characters/medaka-main.png" alt="">
+  </h1>
 </header>
 
 <div class="container">
