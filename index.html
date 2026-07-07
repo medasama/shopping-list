@@ -302,14 +302,12 @@
   .bg-fish--br{ right:6px; bottom:6px; width:165px; opacity:0.95; transform:rotate(-6deg); }
   .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; transform:scaleX(-1) rotate(7deg); }
 
-  .around-fish{
+  .footer-medaka{
     display:block;
+    width:38px;
+    margin:10px 0 0 0;
     opacity:0.95;
-  }
-  .around-fish--footer{
-    width:34px;
-    margin:8px 0 0 auto;
-    transform:rotate(-6deg);
+    transform:scaleX(-1);
   }
 
   .mascot-icon{
@@ -347,15 +345,7 @@
   }
   .empty p{ margin-top:12px; }
 
-  .footer-fish{
-    width:24px;
-    height:24px;
-    object-fit:cover;
-    object-position:35% 50%;
-    border-radius:50%;
-    vertical-align:middle;
-    margin-right:6px;
-  }
+
 </style>
 </head>
 <body>
@@ -401,13 +391,11 @@
     <p>リストはからっぽです<br>上から追加してね</p>
   </div>
 
-  <img class="around-fish around-fish--footer" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-
   <div class="footer-row">
-    <span><img class="footer-fish" src="characters/medaka-kihon.png" alt="">
-    <span id="countText">0件</span></span>
+    <span id="countText">0件</span>
     <button id="clearCheckedBtn">完了済みを削除</button>
   </div>
+  <img class="footer-medaka" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 </div>
 
 <script>
