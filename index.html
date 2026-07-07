@@ -175,6 +175,7 @@
     gap:8px;
   }
   li.item{
+    position:relative;
     display:flex;
     align-items:center;
     gap:12px;
@@ -187,6 +188,33 @@
   }
   li.item.checked{
     opacity:0.55;
+  }
+  li.item.new-item{
+    animation:item-add-kf 0.6s ease;
+  }
+  @keyframes item-add-kf{
+    0%{ transform:translateY(-14px); opacity:0; background-color:var(--accent-soft); box-shadow:0 0 0 3px rgba(79,179,191,0.35); }
+    40%{ transform:translateY(2px); opacity:1; }
+    100%{ transform:translateY(0); opacity:1; background-color:var(--card); box-shadow:0 2px 8px rgba(53,127,138,0.06); }
+  }
+  .add-bubble{
+    position:absolute;
+    right:16px;
+    bottom:10px;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(79,179,191,0.45);
+    opacity:0;
+    pointer-events:none;
+  }
+  .add-bubble--1{ animation:bubble-float 1s ease-out; }
+  .add-bubble--2{ right:34px; width:6px; height:6px; animation:bubble-float 1.1s ease-out 0.1s; }
+  .add-bubble--3{ right:50px; width:5px; height:5px; animation:bubble-float 0.95s ease-out 0.2s; }
+  @keyframes bubble-float{
+    0%{ opacity:0; transform:translateY(0) scale(0.6); }
+    20%{ opacity:0.9; }
+    100%{ opacity:0; transform:translateY(-34px) scale(1); }
   }
   .checkbox{
     width:24px;
@@ -412,31 +440,6 @@
     100%{ transform:translateY(0) scale(1) rotate(0deg); }
   }
 
-  .swim-lane{ position:relative; height:0; overflow:visible; }
-  .swim-fish{
-    position:absolute;
-    left:-60px;
-    opacity:0;
-    pointer-events:none;
-  }
-  .swim-fish--1{ top:-30px; width:26px; }
-  .swim-fish--2{ top:-4px; width:32px; }
-  .swim-fish--3{ top:-46px; width:22px; }
-  .swim-fish--4{ top:14px; width:28px; }
-  .swim-fish--5{ top:-18px; width:24px; }
-  .swim-fish--1.swimming{ animation:swim-across 1.7s ease-in-out; }
-  .swim-fish--2.swimming{ animation:swim-across 2s ease-in-out 0.12s; }
-  .swim-fish--3.swimming{ animation:swim-across 1.85s ease-in-out 0.28s; }
-  .swim-fish--4.swimming{ animation:swim-across 2.15s ease-in-out 0.05s; }
-  .swim-fish--5.swimming{ animation:swim-across 1.95s ease-in-out 0.4s; }
-  @keyframes swim-across{
-    0%{ left:-60px; opacity:0; transform:translateY(0) rotate(0deg); }
-    10%{ opacity:1; }
-    50%{ transform:translateY(-10px) rotate(-4deg); }
-    90%{ opacity:1; }
-    100%{ left:110%; opacity:0; transform:translateY(0) rotate(4deg); }
-  }
-
 
 </style>
 </head>
@@ -472,14 +475,6 @@
 
   <div class="category-tabs" id="categoryTabs"></div>
 
-  <div class="swim-lane">
-    <img class="swim-fish swim-fish--1" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-    <img class="swim-fish swim-fish--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-    <img class="swim-fish swim-fish--3" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-    <img class="swim-fish swim-fish--4" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-    <img class="swim-fish swim-fish--5" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-  </div>
-
   <img class="peek-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
   <ul class="list" id="list"></ul>
@@ -507,6 +502,7 @@
   let items = loadItems();
   let activeCategory = 'すべて';
   let justCheckedId = null;
+  let justAddedId = null;
 
   const listEl = document.getElementById('list');
   const emptyMsg = document.getElementById('emptyMsg');
@@ -531,15 +527,16 @@
 
   function addItem(name, category){
     if(!name.trim()) return;
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
     items.unshift({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      id,
       name: name.trim(),
       category: category || '食品',
       checked: false
     });
+    justAddedId = id;
     saveItems();
     render();
-    swimAcross();
   }
 
   function toggleItem(id){
@@ -589,27 +586,22 @@
     } else {
       emptyMsg.style.display = 'none';
       listEl.innerHTML = filtered.map(i => `
-        <li class="item ${i.checked?'checked':''}" data-id="${i.id}">
+        <li class="item ${i.checked?'checked':''} ${i.id===justAddedId?'new-item':''}" data-id="${i.id}">
           <div class="checkbox" data-action="toggle">
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div class="item-name">${i.checked ? `<img class="item-fish ${i.id===justCheckedId?'item-fish--pop':''}" src="characters/medaka-kihon.png" alt="">` : ''}${escapeHtml(i.name)}</div>
           <div class="item-cat">${escapeHtml(i.category)}</div>
           <button class="del-btn" data-action="delete">✕</button>
+          ${i.id===justAddedId ? '<span class="add-bubble add-bubble--1"></span><span class="add-bubble add-bubble--2"></span><span class="add-bubble add-bubble--3"></span>' : ''}
         </li>
       `).join('');
       justCheckedId = null;
+      justAddedId = null;
     }
 
     const remaining = items.filter(i=>!i.checked).length;
     countText.textContent = `${remaining}件 未購入 / 全${items.length}件`;
-  }
-
-  function swimAcross(){
-    const fishes = document.querySelectorAll('.swim-fish');
-    fishes.forEach(el => el.classList.remove('swimming'));
-    void document.querySelector('.swim-lane').offsetWidth;
-    fishes.forEach(el => el.classList.add('swimming'));
   }
 
   function setupTapBounce(){
