@@ -215,6 +215,15 @@
   li.item.checked .item-name::before{
     content:"🐟 ";
   }
+  li.item.just-checked .item-name::before{
+    display:inline-block;
+    animation:pop-in-kf 0.45s ease;
+  }
+  @keyframes pop-in-kf{
+    0%{ transform:scale(0) rotate(-20deg); }
+    60%{ transform:scale(1.3) rotate(8deg); }
+    100%{ transform:scale(1) rotate(0deg); }
+  }
   .item-cat{
     font-size:11px;
     color:var(--accent-dark);
@@ -299,15 +308,28 @@
     pointer-events:none;
     z-index:-1;
   }
-  .bg-fish--br{ right:6px; bottom:6px; width:165px; opacity:0.95; transform:rotate(-6deg); }
-  .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; transform:scaleX(-1) rotate(7deg); }
+  .bg-fish--br{ right:6px; bottom:6px; width:165px; opacity:0.95; animation:bob-br 4.5s ease-in-out infinite; }
+  .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; animation:bob-bl 5s ease-in-out infinite; animation-delay:0.3s; }
+  @keyframes bob-br{
+    0%,100%{ transform:rotate(-6deg) translateY(0); }
+    50%{ transform:rotate(-4deg) translateY(-6px); }
+  }
+  @keyframes bob-bl{
+    0%,100%{ transform:scaleX(-1) rotate(7deg) translateY(0); }
+    50%{ transform:scaleX(-1) rotate(5deg) translateY(-6px); }
+  }
 
   .list-end-medaka{
     display:block;
     width:34px;
     margin:8px 0 0 auto;
     opacity:0.95;
-    transform:rotate(-6deg);
+    animation:bob-listend 3.6s ease-in-out infinite;
+    animation-delay:0.2s;
+  }
+  @keyframes bob-listend{
+    0%,100%{ transform:rotate(-6deg) translateY(0); }
+    50%{ transform:rotate(-8deg) translateY(-5px); }
   }
 
   .footer-medaka{
@@ -315,7 +337,12 @@
     width:38px;
     margin:10px 0 0 0;
     opacity:0.95;
-    transform:scaleX(-1);
+    animation:bob-footer 3.9s ease-in-out infinite;
+    animation-delay:0.5s;
+  }
+  @keyframes bob-footer{
+    0%,100%{ transform:scaleX(-1) rotate(0deg) translateY(0); }
+    50%{ transform:scaleX(-1) rotate(3deg) translateY(-5px); }
   }
 
   .mascot-icon{
@@ -328,14 +355,28 @@
     box-shadow:0 2px 4px rgba(0,0,0,0.12);
     filter:drop-shadow(0 2px 2px rgba(0,0,0,0.12));
     flex:0 0 auto;
+    animation:bob-icon 2.8s ease-in-out infinite;
+  }
+  .mascot-icon--medaka{ animation:bob-icon2 3.1s ease-in-out infinite; animation-delay:0.4s; }
+  @keyframes bob-icon{
+    0%,100%{ transform:translateY(0) rotate(-3deg); }
+    50%{ transform:translateY(-3px) rotate(3deg); }
+  }
+  @keyframes bob-icon2{
+    0%,100%{ transform:translateY(0) rotate(3deg); }
+    50%{ transform:translateY(-3px) rotate(-3deg); }
   }
 
   .peek-fish{
     display:block;
     width:48px;
     margin:-6px 0 8px auto;
-    transform:rotate(8deg);
     opacity:0.95;
+    animation:bob-peek 3.2s ease-in-out infinite;
+  }
+  @keyframes bob-peek{
+    0%,100%{ transform:rotate(8deg) translateY(0); }
+    50%{ transform:rotate(6deg) translateY(-5px); }
   }
 
   .empty-mascots{
@@ -347,11 +388,44 @@
   .empty-mascot{ width:100px; }
   .empty-mascot--ranchu{ animation:bob 3s ease-in-out infinite; }
   .empty-mascot--medaka{
-    transform:scaleX(-1);
-    animation:bob 3.4s ease-in-out infinite;
+    animation:bob-flip 3.4s ease-in-out infinite;
     animation-delay:0.4s;
   }
+  @keyframes bob-flip{
+    0%,100%{ transform:scaleX(-1) translateY(0) rotate(-2deg); }
+    50%{ transform:scaleX(-1) translateY(-6px) rotate(2deg); }
+  }
   .empty p{ margin-top:12px; }
+
+  .tap-bounce{
+    animation:tap-bounce-kf 0.55s ease !important;
+  }
+  @keyframes tap-bounce-kf{
+    0%{ transform:translateY(0) scale(1) rotate(0deg); }
+    30%{ transform:translateY(-14px) scale(1.15) rotate(-8deg); }
+    55%{ transform:translateY(0) scale(0.95) rotate(6deg); }
+    100%{ transform:translateY(0) scale(1) rotate(0deg); }
+  }
+
+  .swim-lane{ position:relative; height:0; overflow:visible; }
+  .swim-fish{
+    position:absolute;
+    top:-14px;
+    left:-60px;
+    width:50px;
+    opacity:0;
+    pointer-events:none;
+  }
+  .swim-fish.swimming{
+    animation:swim-across 1.8s ease-in-out;
+  }
+  @keyframes swim-across{
+    0%{ left:-60px; opacity:0; transform:translateY(0) rotate(0deg); }
+    10%{ opacity:1; }
+    50%{ transform:translateY(-10px) rotate(-4deg); }
+    90%{ opacity:1; }
+    100%{ left:110%; opacity:0; transform:translateY(0) rotate(4deg); }
+  }
 
 
 </style>
@@ -388,6 +462,10 @@
 
   <div class="category-tabs" id="categoryTabs"></div>
 
+  <div class="swim-lane">
+    <img id="swimFish" class="swim-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
+  </div>
+
   <img class="peek-fish" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
   <ul class="list" id="list"></ul>
@@ -414,6 +492,7 @@
 
   let items = loadItems();
   let activeCategory = 'すべて';
+  let justCheckedId = null;
 
   const listEl = document.getElementById('list');
   const emptyMsg = document.getElementById('emptyMsg');
@@ -446,11 +525,17 @@
     });
     saveItems();
     render();
+    swimAcross();
   }
 
   function toggleItem(id){
     const it = items.find(i => i.id === id);
-    if(it){ it.checked = !it.checked; saveItems(); render(); }
+    if(it){
+      it.checked = !it.checked;
+      justCheckedId = it.checked ? id : null;
+      saveItems();
+      render();
+    }
   }
 
   function deleteItem(id){
@@ -490,7 +575,7 @@
     } else {
       emptyMsg.style.display = 'none';
       listEl.innerHTML = filtered.map(i => `
-        <li class="item ${i.checked?'checked':''}" data-id="${i.id}">
+        <li class="item ${i.checked?'checked':''} ${i.id===justCheckedId?'just-checked':''}" data-id="${i.id}">
           <div class="checkbox" data-action="toggle">
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
@@ -499,10 +584,31 @@
           <button class="del-btn" data-action="delete">✕</button>
         </li>
       `).join('');
+      justCheckedId = null;
     }
 
     const remaining = items.filter(i=>!i.checked).length;
     countText.textContent = `${remaining}件 未購入 / 全${items.length}件`;
+  }
+
+  function swimAcross(){
+    const el = document.getElementById('swimFish');
+    el.classList.remove('swimming');
+    void el.offsetWidth;
+    el.classList.add('swimming');
+  }
+
+  function setupTapBounce(){
+    document.querySelectorAll('.mascot-icon, .peek-fish, .list-end-medaka, .footer-medaka, .empty-mascot').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        el.classList.remove('tap-bounce');
+        void el.offsetWidth;
+        el.classList.add('tap-bounce');
+      });
+      el.addEventListener('animationend', (e)=>{
+        if(e.animationName === 'tap-bounce-kf'){ el.classList.remove('tap-bounce'); }
+      });
+    });
   }
 
   function escapeHtml(str){
@@ -542,6 +648,7 @@
   clearCheckedBtn.addEventListener('click', clearChecked);
 
   render();
+  setupTapBounce();
 
   // Service worker registration for offline support
   if('serviceWorker' in navigator){
