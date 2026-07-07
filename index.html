@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#2d5a4a">
+<meta name="theme-color" content="#4fb3bf">
 <title>買い物リスト</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
@@ -13,14 +13,17 @@
 <meta name="apple-mobile-web-app-title" content="買い物リスト">
 <style>
   :root{
-    --bg:#f7f5f0;
+    --bg:#f2f8f9;
     --card:#ffffff;
-    --ink:#2b2b26;
-    --ink-soft:#7a7a72;
-    --accent:#2d5a4a;
-    --accent-soft:#e4ede9;
-    --line:#e8e5dd;
-    --danger:#b5544a;
+    --ink:#3a4750;
+    --ink-soft:#93a8ae;
+    --accent:#4fb3bf;
+    --accent-dark:#357f8a;
+    --accent-soft:#dcf1f0;
+    --pink:#ff9d81;
+    --line:#dfeced;
+    --danger:#e0645a;
+    --gold:#f2c14e;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
@@ -32,23 +35,42 @@
     padding-bottom:env(safe-area-inset-bottom);
   }
   header{
-    padding:calc(env(safe-area-inset-top) + 20px) 20px 16px;
-    background:var(--accent);
+    padding:calc(env(safe-area-inset-top) + 20px) 20px 22px;
+    background:linear-gradient(135deg, var(--accent) 0%, var(--pink) 100%);
     color:#fff;
     position:sticky;
     top:0;
     z-index:10;
+    border-radius:0 0 26px 26px;
+    box-shadow:0 4px 14px rgba(53,127,138,0.18);
+    overflow:hidden;
   }
+  header::before, header::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.18);
+    pointer-events:none;
+  }
+  header::before{ width:70px; height:70px; top:-30px; right:20px; }
+  header::after{ width:36px; height:36px; bottom:-10px; right:80px; background:rgba(255,255,255,0.12); }
   header h1{
     margin:0;
     font-size:20px;
-    font-weight:600;
+    font-weight:700;
     letter-spacing:0.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    position:relative;
+    z-index:1;
   }
   header p{
-    margin:4px 0 0;
+    margin:6px 0 0;
     font-size:12px;
-    opacity:0.75;
+    opacity:0.85;
+    position:relative;
+    z-index:1;
   }
   .container{
     max-width:520px;
@@ -62,9 +84,9 @@
   }
   .add-row input[type=text]{
     flex:1;
-    padding:12px 14px;
+    padding:12px 16px;
     border:1px solid var(--line);
-    border-radius:12px;
+    border-radius:16px;
     font-size:16px;
     background:var(--card);
     color:var(--ink);
@@ -72,11 +94,12 @@
   .add-row input[type=text]:focus{
     outline:none;
     border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
   }
   .add-row select{
     padding:0 10px;
     border:1px solid var(--line);
-    border-radius:12px;
+    border-radius:16px;
     font-size:14px;
     background:var(--card);
     color:var(--ink);
@@ -84,16 +107,17 @@
     max-width:92px;
   }
   .add-row button{
-    padding:0 18px;
+    padding:0 20px;
     border:none;
-    border-radius:12px;
-    background:var(--accent);
+    border-radius:999px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
     color:#fff;
     font-size:15px;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
+    box-shadow:0 3px 8px rgba(53,127,138,0.28);
   }
-  .add-row button:active{opacity:0.8;}
+  .add-row button:active{opacity:0.85; transform:scale(0.97);}
 
   .category-tabs{
     display:flex;
@@ -105,7 +129,7 @@
   .category-tabs::-webkit-scrollbar{display:none;}
   .cat-chip{
     flex:0 0 auto;
-    padding:6px 12px;
+    padding:6px 14px;
     border-radius:999px;
     background:var(--card);
     border:1px solid var(--line);
@@ -115,10 +139,11 @@
     white-space:nowrap;
   }
   .cat-chip.active{
-    background:var(--accent-soft);
-    border-color:var(--accent);
-    color:var(--accent);
-    font-weight:600;
+    background:linear-gradient(135deg, var(--accent), var(--pink));
+    border-color:transparent;
+    color:#fff;
+    font-weight:700;
+    box-shadow:0 2px 6px rgba(53,127,138,0.25);
   }
 
   ul.list{
@@ -135,16 +160,18 @@
     gap:12px;
     background:var(--card);
     border:1px solid var(--line);
-    border-radius:14px;
+    border-radius:18px;
     padding:12px 14px;
+    box-shadow:0 2px 8px rgba(53,127,138,0.06);
+    transition:opacity 0.2s;
   }
   li.item.checked{
-    opacity:0.5;
+    opacity:0.55;
   }
   .checkbox{
-    width:22px;
-    height:22px;
-    border-radius:7px;
+    width:24px;
+    height:24px;
+    border-radius:50%;
     border:2px solid var(--accent);
     flex:0 0 auto;
     display:flex;
@@ -153,7 +180,7 @@
     cursor:pointer;
   }
   .checkbox svg{display:none; width:14px; height:14px;}
-  li.item.checked .checkbox{background:var(--accent);}
+  li.item.checked .checkbox{background:linear-gradient(135deg, var(--accent), var(--accent-dark));}
   li.item.checked .checkbox svg{display:block;}
   .item-name{
     flex:1;
@@ -165,11 +192,14 @@
     text-decoration:line-through;
     color:var(--ink-soft);
   }
+  li.item.checked .item-name::before{
+    content:"🐟 ";
+  }
   .item-cat{
     font-size:11px;
-    color:var(--ink-soft);
-    background:var(--bg);
-    padding:2px 8px;
+    color:var(--accent-dark);
+    background:var(--accent-soft);
+    padding:3px 10px;
     border-radius:999px;
     flex:0 0 auto;
   }
@@ -188,8 +218,18 @@
   .empty{
     text-align:center;
     color:var(--ink-soft);
-    padding:60px 20px;
+    padding:40px 20px 60px;
     font-size:14px;
+  }
+  .empty-mascot{
+    display:block;
+    margin:0 auto 12px;
+    animation:bob 3s ease-in-out infinite;
+  }
+  .empty p{ margin:0; line-height:1.7; }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0) rotate(-2deg); }
+    50%{ transform:translateY(-6px) rotate(2deg); }
   }
 
   .footer-row{
@@ -215,8 +255,8 @@
     max-width:520px;
     margin:0 auto 14px;
     background:var(--accent-soft);
-    color:var(--accent);
-    border-radius:12px;
+    color:var(--accent-dark);
+    border-radius:16px;
     padding:12px 14px;
     font-size:13px;
     align-items:center;
@@ -225,20 +265,76 @@
   }
   .install-banner button{
     border:none;
-    background:var(--accent);
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
     color:#fff;
     padding:8px 14px;
-    border-radius:8px;
+    border-radius:999px;
     font-size:13px;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
     flex:0 0 auto;
+  }
+  .bg-fish{
+    position:fixed;
+    pointer-events:none;
+    z-index:-1;
+  }
+  .bg-fish--br{ right:-22px; bottom:-14px; width:180px; opacity:0.12; transform:rotate(-6deg); }
+  .bg-fish--tl{ left:-28px; top:-8px; width:140px; opacity:0.10; transform:scaleX(-1) rotate(-10deg); }
+
+  .mascot-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:40% 55%;
+    background:rgba(255,255,255,0.3);
+    box-shadow:0 2px 4px rgba(0,0,0,0.12);
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,0.12));
+    flex:0 0 auto;
+  }
+
+  .peek-fish{
+    display:block;
+    width:44px;
+    margin:-6px 0 8px auto;
+    transform:rotate(8deg);
+    opacity:0.95;
+  }
+
+  .empty-mascots{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:2px;
+  }
+  .empty-mascot{ width:100px; }
+  .empty-mascot--ranchu{ animation:bob 3s ease-in-out infinite; }
+  .empty-mascot--medaka{
+    transform:scaleX(-1);
+    animation:bob 3.4s ease-in-out infinite;
+    animation-delay:0.4s;
+  }
+  .empty p{ margin-top:12px; }
+
+  .footer-fish{
+    width:24px;
+    height:24px;
+    object-fit:cover;
+    object-position:35% 50%;
+    border-radius:50%;
+    vertical-align:middle;
+    margin-right:6px;
+    transform:rotate(-4deg);
   }
 </style>
 </head>
 <body>
+<img class="bg-fish bg-fish--br" src="characters/ranchu.png" alt="" aria-hidden="true">
+<img class="bg-fish bg-fish--tl" src="characters/medaka.png" alt="" aria-hidden="true">
+
 <header>
-  <h1>🛒 買い物リスト</h1>
+  <h1><img class="mascot-icon" src="characters/ranchu.png" alt=""> 買い物リスト</h1>
   <p>タップして完了チェック・オフラインでも使えます</p>
 </header>
 
@@ -256,11 +352,20 @@
 
   <div class="category-tabs" id="categoryTabs"></div>
 
+  <img class="peek-fish" src="characters/medaka.png" alt="" aria-hidden="true">
+
   <ul class="list" id="list"></ul>
-  <div class="empty" id="emptyMsg" style="display:none;">リストは空です。上から追加してください。</div>
+  <div class="empty" id="emptyMsg" style="display:none;">
+    <div class="empty-mascots">
+      <img class="empty-mascot empty-mascot--ranchu" src="characters/ranchu.png" alt="らんちゅう">
+      <img class="empty-mascot empty-mascot--medaka" src="characters/medaka.png" alt="メダカ">
+    </div>
+    <p>リストはからっぽです<br>上から追加してね</p>
+  </div>
 
   <div class="footer-row">
-    <span id="countText">0件</span>
+    <span><img class="footer-fish" src="characters/medaka.png" alt="">
+    <span id="countText">0件</span></span>
     <button id="clearCheckedBtn">完了済みを削除</button>
   </div>
 </div>
