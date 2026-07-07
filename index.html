@@ -84,10 +84,34 @@
     margin:0 auto;
     padding:16px;
   }
+  .add-panel{
+    background:linear-gradient(160deg, var(--accent-soft), var(--card) 65%);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:14px 14px 16px;
+    box-shadow:0 4px 14px rgba(53,127,138,0.12);
+    margin-bottom:18px;
+  }
+  .add-label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .add-label-icon{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:35% 45%;
+    flex:0 0 auto;
+  }
   .add-row{
     display:flex;
     gap:8px;
-    margin-bottom:18px;
   }
   .add-row input[type=text]{
     flex:1;
@@ -123,8 +147,13 @@
     font-weight:700;
     cursor:pointer;
     box-shadow:0 3px 8px rgba(53,127,138,0.28);
+    animation:btn-pulse 2.6s ease-in-out infinite;
   }
   .add-row button:active{opacity:0.85; transform:scale(0.97);}
+  @keyframes btn-pulse{
+    0%,100%{ box-shadow:0 3px 8px rgba(53,127,138,0.28); }
+    50%{ box-shadow:0 3px 8px rgba(53,127,138,0.28), 0 0 0 7px rgba(79,179,191,0.18); }
+  }
 
   .category-tabs{
     display:flex;
@@ -368,10 +397,16 @@
     <button id="installBtn">追加</button>
   </div>
 
-  <div class="add-row">
-    <input type="text" id="itemInput" placeholder="例：牛乳、玉ねぎ..." autocomplete="off">
-    <select id="categorySelect"></select>
-    <button id="addBtn">追加</button>
+  <div class="add-panel">
+    <div class="add-label">
+      <img class="add-label-icon" src="characters/medaka-kihon.png" alt="">
+      <span>なにか買い足す？</span>
+    </div>
+    <div class="add-row">
+      <input type="text" id="itemInput" placeholder="例：牛乳、玉ねぎ..." autocomplete="off">
+      <select id="categorySelect"></select>
+      <button id="addBtn">追加</button>
+    </div>
   </div>
 
   <div class="category-tabs" id="categoryTabs"></div>
