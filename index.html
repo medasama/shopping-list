@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#4fb3bf">
+<meta name="theme-color" content="#2f96ac">
 <title>買い物リスト</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
@@ -13,15 +13,16 @@
 <meta name="apple-mobile-web-app-title" content="買い物リスト">
 <style>
   :root{
-    --bg:#f2f8f9;
-    --card:#ffffff;
-    --ink:#3a4750;
-    --ink-soft:#93a8ae;
-    --accent:#4fb3bf;
-    --accent-dark:#357f8a;
-    --accent-soft:#dcf1f0;
-    --pink:#ff9d81;
-    --line:#dfeced;
+    --bg:#eaf7fb;
+    --bg-deep:#8fc2dc;
+    --card:#fcfeff;
+    --ink:#2f4152;
+    --ink-soft:#7ba0ae;
+    --accent:#2f96ac;
+    --accent-dark:#1f6c80;
+    --accent-soft:#cdeef4;
+    --pink:#5f86b8;
+    --line:#d2e9f0;
     --danger:#e0645a;
     --gold:#f2c14e;
   }
@@ -30,7 +31,7 @@
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    background:var(--bg);
+    background:linear-gradient(180deg, var(--bg) 0%, #bfe2ee 55%, var(--bg-deep) 100%);
     color:var(--ink);
     padding-bottom:env(safe-area-inset-bottom);
   }
@@ -42,7 +43,7 @@
     top:0;
     z-index:10;
     border-radius:0 0 26px 26px;
-    box-shadow:0 4px 14px rgba(53,127,138,0.18);
+    box-shadow:0 4px 14px rgba(31,108,128,0.18);
     overflow:hidden;
   }
   header::before, header::after{
@@ -60,7 +61,7 @@
     font-size:26px;
     font-weight:700;
     letter-spacing:0.04em;
-    -webkit-text-stroke:1.2px rgba(53,127,138,0.4);
+    -webkit-text-stroke:1.2px rgba(31,108,128,0.4);
     text-shadow:0 2px 0 rgba(0,0,0,0.08);
     display:flex;
     align-items:center;
@@ -89,7 +90,7 @@
     border:1px solid var(--line);
     border-radius:22px;
     padding:12px 10px;
-    box-shadow:0 4px 14px rgba(53,127,138,0.12);
+    box-shadow:0 4px 14px rgba(31,108,128,0.12);
     margin-bottom:18px;
   }
   .add-row{
@@ -130,13 +131,13 @@
     font-size:15px;
     font-weight:700;
     cursor:pointer;
-    box-shadow:0 3px 8px rgba(53,127,138,0.28);
+    box-shadow:0 3px 8px rgba(31,108,128,0.28);
     animation:btn-pulse 2.6s ease-in-out infinite;
   }
   .add-row button:active{opacity:0.85; transform:scale(0.97);}
   @keyframes btn-pulse{
-    0%,100%{ box-shadow:0 3px 8px rgba(53,127,138,0.28); }
-    50%{ box-shadow:0 3px 8px rgba(53,127,138,0.28), 0 0 0 7px rgba(79,179,191,0.18); }
+    0%,100%{ box-shadow:0 3px 8px rgba(31,108,128,0.28); }
+    50%{ box-shadow:0 3px 8px rgba(31,108,128,0.28), 0 0 0 7px rgba(47,150,172,0.18); }
   }
 
   .category-tabs{
@@ -163,7 +164,7 @@
     border-color:transparent;
     color:#fff;
     font-weight:700;
-    box-shadow:0 2px 6px rgba(53,127,138,0.25);
+    box-shadow:0 2px 6px rgba(31,108,128,0.25);
   }
 
   ul.list{
@@ -183,7 +184,7 @@
     border:1px solid var(--line);
     border-radius:18px;
     padding:12px 14px;
-    box-shadow:0 2px 8px rgba(53,127,138,0.06);
+    box-shadow:0 2px 8px rgba(31,108,128,0.06);
     transition:opacity 0.2s;
   }
   li.item.checked{
@@ -193,9 +194,9 @@
     animation:item-add-kf 0.6s ease;
   }
   @keyframes item-add-kf{
-    0%{ transform:translateY(-14px); opacity:0; background-color:var(--accent-soft); box-shadow:0 0 0 3px rgba(79,179,191,0.35); }
+    0%{ transform:translateY(-14px); opacity:0; background-color:var(--accent-soft); box-shadow:0 0 0 3px rgba(47,150,172,0.35); }
     40%{ transform:translateY(2px); opacity:1; }
-    100%{ transform:translateY(0); opacity:1; background-color:var(--card); box-shadow:0 2px 8px rgba(53,127,138,0.06); }
+    100%{ transform:translateY(0); opacity:1; background-color:var(--card); box-shadow:0 2px 8px rgba(31,108,128,0.06); }
   }
   .add-bubble{
     position:absolute;
@@ -204,7 +205,7 @@
     width:8px;
     height:8px;
     border-radius:50%;
-    background:rgba(79,179,191,0.45);
+    background:rgba(47,150,172,0.45);
     opacity:0;
     pointer-events:none;
   }
@@ -336,6 +337,30 @@
     cursor:pointer;
     flex:0 0 auto;
   }
+  .ambient-bubble{
+    position:fixed;
+    bottom:-40px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.15) 60%, rgba(255,255,255,0) 72%);
+    border:1px solid rgba(255,255,255,0.5);
+    pointer-events:none;
+    z-index:-1;
+    opacity:0;
+    animation:bubble-rise linear infinite;
+  }
+  @keyframes bubble-rise{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    10%{ opacity:0.8; }
+    90%{ opacity:0.5; }
+    100%{ transform:translateY(-115vh) translateX(var(--drift, 10px)); opacity:0; }
+  }
+  .ambient-bubble--1{ left:8%;  width:14px; height:14px; animation-duration:9s;   animation-delay:0s;   --drift:10px; }
+  .ambient-bubble--2{ left:22%; width:8px;  height:8px;  animation-duration:7s;   animation-delay:2s;   --drift:-8px; }
+  .ambient-bubble--3{ left:40%; width:11px; height:11px; animation-duration:11s;  animation-delay:4s;   --drift:12px; }
+  .ambient-bubble--4{ left:58%; width:7px;  height:7px;  animation-duration:8s;   animation-delay:1s;   --drift:-10px; }
+  .ambient-bubble--5{ left:75%; width:13px; height:13px; animation-duration:10s;  animation-delay:3.5s; --drift:8px; }
+  .ambient-bubble--6{ left:90%; width:9px;  height:9px;  animation-duration:7.5s; animation-delay:5s;   --drift:-6px; }
+
   .bg-fish{
     position:fixed;
     pointer-events:none;
@@ -444,6 +469,12 @@
 </style>
 </head>
 <body>
+<div class="ambient-bubble ambient-bubble--1" aria-hidden="true"></div>
+<div class="ambient-bubble ambient-bubble--2" aria-hidden="true"></div>
+<div class="ambient-bubble ambient-bubble--3" aria-hidden="true"></div>
+<div class="ambient-bubble ambient-bubble--4" aria-hidden="true"></div>
+<div class="ambient-bubble ambient-bubble--5" aria-hidden="true"></div>
+<div class="ambient-bubble ambient-bubble--6" aria-hidden="true"></div>
 <img class="bg-fish bg-fish--br" src="characters/ranchu.png" alt="" aria-hidden="true">
 <img class="bg-fish bg-fish--bl" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
