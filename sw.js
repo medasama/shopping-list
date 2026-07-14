@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopping-list-v9';
+const CACHE_NAME = 'shopping-list-v10';
 const STATIC_ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
