@@ -198,6 +198,15 @@
     40%{ transform:translateY(2px); opacity:1; }
     100%{ transform:translateY(0); opacity:1; background-color:var(--card); box-shadow:0 2px 8px rgba(31,108,128,0.06); }
   }
+  li.item.removing{
+    animation:item-remove-kf 0.5s ease forwards;
+    pointer-events:none;
+  }
+  @keyframes item-remove-kf{
+    0%{ transform:scale(1) translateX(0); opacity:1; }
+    40%{ transform:scale(1.02) translateX(0); opacity:1; background-color:var(--accent-soft); }
+    100%{ transform:scale(0.92) translateX(24px); opacity:0; }
+  }
   .add-bubble{
     position:absolute;
     right:16px;
@@ -297,21 +306,13 @@
 
   .footer-row{
     display:flex;
-    justify-content:space-between;
+    justify-content:center;
     align-items:center;
     margin-top:20px;
     padding-top:14px;
     border-top:1px solid var(--line);
     font-size:13px;
     color:var(--ink-soft);
-  }
-  .footer-row button{
-    border:none;
-    background:none;
-    color:var(--danger);
-    font-size:13px;
-    cursor:pointer;
-    padding:4px;
   }
   .install-banner{
     display:none;
@@ -521,7 +522,6 @@
 
   <div class="footer-row">
     <span id="countText">0件</span>
-    <button id="clearCheckedBtn">完了済みを削除</button>
   </div>
   <img class="footer-medaka" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 </div>
@@ -532,8 +532,8 @@
 
   let items = loadItems();
   let activeCategory = 'すべて';
-  let justCheckedId = null;
   let justAddedId = null;
+  const removingIds = new Set();
 
   const listEl = document.getElementById('list');
   const emptyMsg = document.getElementById('emptyMsg');
@@ -541,12 +541,12 @@
   const itemInput = document.getElementById('itemInput');
   const addBtn = document.getElementById('addBtn');
   const categoryTabs = document.getElementById('categoryTabs');
-  const clearCheckedBtn = document.getElementById('clearCheckedBtn');
 
   function loadItems(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const parsed = raw ? JSON.parse(raw) : [];
+      return parsed.filter(i => !i.checked);
     }catch(e){
       return [];
     }
@@ -562,32 +562,30 @@
     items.unshift({
       id,
       name: name.trim(),
-      category: category || '食品',
-      checked: false
+      category: category || '食品'
     });
     justAddedId = id;
     saveItems();
     render();
   }
 
-  function toggleItem(id){
+  function completeItem(id){
+    if(removingIds.has(id)) return;
     const it = items.find(i => i.id === id);
-    if(it){
-      it.checked = !it.checked;
-      justCheckedId = it.checked ? id : null;
+    if(!it) return;
+    removingIds.add(id);
+    render();
+    setTimeout(()=>{
+      items = items.filter(i => i.id !== id);
+      removingIds.delete(id);
       saveItems();
       render();
-    }
+    }, 500);
   }
 
   function deleteItem(id){
     items = items.filter(i => i.id !== id);
-    saveItems();
-    render();
-  }
-
-  function clearChecked(){
-    items = items.filter(i => !i.checked);
+    removingIds.delete(id);
     saveItems();
     render();
   }
@@ -616,23 +614,24 @@
       emptyMsg.style.display = 'block';
     } else {
       emptyMsg.style.display = 'none';
-      listEl.innerHTML = filtered.map(i => `
-        <li class="item ${i.checked?'checked':''} ${i.id===justAddedId?'new-item':''}" data-id="${i.id}">
+      listEl.innerHTML = filtered.map(i => {
+        const isRemoving = removingIds.has(i.id);
+        return `
+        <li class="item ${isRemoving?'checked removing':''} ${i.id===justAddedId?'new-item':''}" data-id="${i.id}">
           <div class="checkbox" data-action="toggle">
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="item-name">${i.checked ? `<img class="item-fish ${i.id===justCheckedId?'item-fish--pop':''}" src="characters/medaka-kihon.png" alt="">` : ''}${escapeHtml(i.name)}</div>
+          <div class="item-name">${isRemoving ? `<img class="item-fish item-fish--pop" src="characters/medaka-kihon.png" alt="">` : ''}${escapeHtml(i.name)}</div>
           <div class="item-cat">${escapeHtml(i.category)}</div>
           <button class="del-btn" data-action="delete">✕</button>
           ${i.id===justAddedId ? '<span class="add-bubble add-bubble--1"></span><span class="add-bubble add-bubble--2"></span><span class="add-bubble add-bubble--3"></span>' : ''}
         </li>
-      `).join('');
-      justCheckedId = null;
+      `;
+      }).join('');
       justAddedId = null;
     }
 
-    const remaining = items.filter(i=>!i.checked).length;
-    countText.textContent = `${remaining}件 未購入 / 全${items.length}件`;
+    countText.textContent = `${items.length}件`;
   }
 
   function setupTapBounce(){
@@ -661,8 +660,8 @@
     const action = e.target.closest('[data-action]')?.dataset.action;
     if(action === 'delete'){
       deleteItem(id);
-    } else {
-      toggleItem(id);
+    } else if(action === 'toggle'){
+      completeItem(id);
     }
   });
 
@@ -681,8 +680,6 @@
       itemInput.value = '';
     }
   });
-
-  clearCheckedBtn.addEventListener('click', clearChecked);
 
   render();
   setupTapBounce();
