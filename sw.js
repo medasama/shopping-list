@@ -1,11 +1,12 @@
-const CACHE_NAME = 'shopping-list-v10';
+const CACHE_NAME = 'shopping-list-v11';
 const STATIC_ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './characters/ranchu.png',
   './characters/medaka-main.png',
-  './characters/medaka-kihon.png'
+  './characters/medaka-kihon.png',
+  './characters/medaka-thanks.png'
 ];
 
 self.addEventListener('install', (event) => {

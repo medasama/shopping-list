@@ -31,9 +31,16 @@
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    background:linear-gradient(180deg, var(--bg) 0%, #a9d8ec 50%, var(--bg-deep) 100%);
+    background:var(--bg-deep);
     color:var(--ink);
     padding-bottom:env(safe-area-inset-bottom);
+  }
+  .water-bg{
+    position:fixed;
+    inset:0;
+    z-index:-4;
+    pointer-events:none;
+    background:linear-gradient(180deg, var(--bg) 0%, #a9d8ec 45%, var(--bg-deep) 100%);
   }
   header{
     padding:calc(env(safe-area-inset-top) + 20px) 20px 22px;
@@ -92,7 +99,16 @@
     box-shadow:0 2px 4px rgba(0,0,0,0.1);
   }
   .header-extra--1{ top:20px; left:18px; object-position:35% 45%; transform:rotate(-6deg); }
-  .header-extra--2{ top:20px; right:18px; object-position:38% 42%; transform:scaleX(-1) rotate(6deg); }
+  .header-thanks{
+    position:absolute;
+    bottom:-20px;
+    right:-8px;
+    width:92px;
+    opacity:0.92;
+    pointer-events:none;
+    z-index:0;
+    transform:rotate(-3deg);
+  }
   .container{
     max-width:520px;
     margin:0 auto;
@@ -317,16 +333,6 @@
     50%{ transform:translateY(-6px) rotate(2deg); }
   }
 
-  .footer-row{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    margin-top:20px;
-    padding-top:14px;
-    border-top:1px solid var(--line);
-    font-size:13px;
-    color:var(--ink-soft);
-  }
   .install-banner{
     display:none;
     max-width:520px;
@@ -477,6 +483,7 @@
 </style>
 </head>
 <body>
+<div class="water-bg" aria-hidden="true"></div>
 <div class="ambient-bubble ambient-bubble--1" aria-hidden="true"></div>
 <div class="ambient-bubble ambient-bubble--2" aria-hidden="true"></div>
 <div class="ambient-bubble ambient-bubble--3" aria-hidden="true"></div>
@@ -492,7 +499,7 @@
   <svg class="header-sparkle header-sparkle--3" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>
   <svg class="header-sparkle header-sparkle--4" viewBox="0 0 24 24" fill="#ffe9a8" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.5 1.2 4 2.5C10.5 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
   <img class="header-extra header-extra--1" src="characters/ranchu.png" alt="" aria-hidden="true">
-  <img class="header-extra header-extra--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+  <img class="header-thanks" src="characters/medaka-thanks.png" alt="" aria-hidden="true">
   <h1>
     <img class="mascot-icon" src="characters/ranchu.png" alt="">
     買い物リスト
@@ -527,9 +534,6 @@
 
   <img class="list-end-medaka" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 
-  <div class="footer-row">
-    <span id="countText">0件</span>
-  </div>
   <img class="footer-medaka" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 </div>
 
@@ -544,7 +548,6 @@
 
   const listEl = document.getElementById('list');
   const emptyMsg = document.getElementById('emptyMsg');
-  const countText = document.getElementById('countText');
   const itemInput = document.getElementById('itemInput');
   const addBtn = document.getElementById('addBtn');
   const categoryTabs = document.getElementById('categoryTabs');
@@ -638,7 +641,6 @@
       justAddedId = null;
     }
 
-    countText.textContent = `${items.length}件`;
     requestAnimationFrame(updateCornerFishVisibility);
   }
 
