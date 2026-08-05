@@ -99,6 +99,8 @@
   .header-swim--5{ bottom:6px; right:84px; width:32px; animation:bob-hswim5 3.9s ease-in-out infinite; animation-delay:0.4s; }
   .header-swim--6{ top:12px; left:16px; width:30px; animation:bob-hswim6 3.3s ease-in-out infinite; animation-delay:0.2s; }
   .header-swim--7{ top:36px; left:40px; width:22px; opacity:0.9; animation:bob-hswim7 3.7s ease-in-out infinite; animation-delay:0.55s; }
+  .header-swim--8{ top:2px; left:148px; width:19px; animation:bob-hswim8 3.5s ease-in-out infinite; animation-delay:0.1s; }
+  .header-swim--9{ top:3px; right:148px; width:18px; animation:bob-hswim9 3.9s ease-in-out infinite; animation-delay:0.45s; }
   @keyframes bob-hswim1{
     0%,100%{ transform:rotate(-5deg) translateY(0); }
     50%{ transform:rotate(-2deg) translateY(-4px); }
@@ -126,6 +128,14 @@
   @keyframes bob-hswim7{
     0%,100%{ transform:rotate(5deg) translateY(0); }
     50%{ transform:rotate(2deg) translateY(-3px); }
+  }
+  @keyframes bob-hswim8{
+    0%,100%{ transform:rotate(-4deg) translateY(0); }
+    50%{ transform:rotate(-1deg) translateY(-3px); }
+  }
+  @keyframes bob-hswim9{
+    0%,100%{ transform:scaleX(-1) rotate(4deg) translateY(0); }
+    50%{ transform:scaleX(-1) rotate(1deg) translateY(-3px); }
   }
   .container{
     max-width:520px;
@@ -502,6 +512,8 @@
   <img class="header-swim header-swim--5" src="characters/ranchu-isoge.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--6" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--7" src="characters/medaka-main.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--8" src="characters/ranchu-wink.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--9" src="characters/medaka-sore.png" alt="" aria-hidden="true">
   <h1>買い物リスト</h1>
 </header>
 
@@ -640,6 +652,7 @@
     }
 
     requestAnimationFrame(updateCornerFishVisibility);
+    setTimeout(updateCornerFishVisibility, 120);
   }
 
   function updateCornerFishVisibility(){
@@ -701,6 +714,7 @@
   setupTapBounce();
   window.addEventListener('scroll', updateCornerFishVisibility, { passive: true });
   window.addEventListener('resize', updateCornerFishVisibility);
+  window.addEventListener('load', updateCornerFishVisibility);
 
   // Service worker registration for offline support
   if('serviceWorker' in navigator){
