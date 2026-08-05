@@ -80,18 +80,19 @@
   .header-sparkle--3{ bottom:18px; left:104px; width:11px; transform:rotate(6deg); }
   .header-sparkle--4{ bottom:22px; right:112px; width:15px; transform:rotate(-14deg); }
   .mascot-icon--medaka{ object-position:38% 42%; }
-  .header-mini{
+  .header-extra{
     position:absolute;
-    width:22px;
-    height:22px;
+    width:26px;
+    height:26px;
     border-radius:50%;
     object-fit:cover;
     pointer-events:none;
     z-index:0;
-    opacity:0.9;
+    opacity:0.85;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
   }
-  .header-mini--1{ bottom:-4px; left:34px; object-position:35% 45%; transform:rotate(-8deg); }
-  .header-mini--2{ bottom:-6px; right:36px; object-position:38% 42%; transform:scaleX(-1) rotate(6deg); }
+  .header-extra--1{ top:20px; left:18px; object-position:35% 45%; transform:rotate(-6deg); }
+  .header-extra--2{ top:20px; right:18px; object-position:38% 42%; transform:scaleX(-1) rotate(6deg); }
   .container{
     max-width:520px;
     margin:0 auto;
@@ -490,8 +491,8 @@
   <svg class="header-sparkle header-sparkle--2" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.5 1.2 4 2.5C10.5 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
   <svg class="header-sparkle header-sparkle--3" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>
   <svg class="header-sparkle header-sparkle--4" viewBox="0 0 24 24" fill="#ffe9a8" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3.5 1.2 4 2.5C10.5 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
-  <img class="header-mini header-mini--1" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-  <img class="header-mini header-mini--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
+  <img class="header-extra header-extra--1" src="characters/ranchu.png" alt="" aria-hidden="true">
+  <img class="header-extra header-extra--2" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <h1>
     <img class="mascot-icon" src="characters/ranchu.png" alt="">
     買い物リスト
@@ -642,11 +643,8 @@
   }
 
   function updateCornerFishVisibility(){
-    const containerEl = document.querySelector('.container');
-    if(!containerEl) return;
-    const rect = containerEl.getBoundingClientRect();
-    const dangerZone = 180;
-    const overlapping = rect.bottom > (window.innerHeight - dangerZone);
+    const dangerZone = 170;
+    const overlapping = document.documentElement.scrollHeight > (window.innerHeight + dangerZone);
     document.querySelectorAll('.bg-fish--br, .bg-fish--bl').forEach(el=>{
       el.classList.toggle('bg-fish--hidden', overlapping);
     });
