@@ -95,6 +95,8 @@
   .header-swim--1{ bottom:6px; left:12px; width:42px; animation:bob-hswim1 3.4s ease-in-out infinite; }
   .header-swim--2{ top:10px; right:16px; width:34px; animation:bob-hswim2 3.8s ease-in-out infinite; animation-delay:0.3s; }
   .header-swim--3{ bottom:0; right:4px; width:66px; opacity:0.95; animation:bob-hswim3 4.2s ease-in-out infinite; animation-delay:0.5s; }
+  .header-swim--4{ top:10px; left:80px; width:32px; animation:bob-hswim4 3.6s ease-in-out infinite; animation-delay:0.15s; }
+  .header-swim--5{ bottom:6px; right:84px; width:32px; animation:bob-hswim5 3.9s ease-in-out infinite; animation-delay:0.4s; }
   @keyframes bob-hswim1{
     0%,100%{ transform:rotate(-5deg) translateY(0); }
     50%{ transform:rotate(-2deg) translateY(-4px); }
@@ -106,6 +108,14 @@
   @keyframes bob-hswim3{
     0%,100%{ transform:rotate(-2deg) translateY(0); }
     50%{ transform:rotate(1deg) translateY(-5px); }
+  }
+  @keyframes bob-hswim4{
+    0%,100%{ transform:rotate(4deg) translateY(0); }
+    50%{ transform:rotate(1deg) translateY(-4px); }
+  }
+  @keyframes bob-hswim5{
+    0%,100%{ transform:scaleX(-1) rotate(-4deg) translateY(0); }
+    50%{ transform:scaleX(-1) rotate(-1deg) translateY(-4px); }
   }
   .container{
     max-width:520px;
@@ -478,6 +488,8 @@
   <img class="header-swim header-swim--1" src="characters/ranchu.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--2" src="characters/ranchu-thumbsup.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--3" src="characters/medaka-thanks2.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--4" src="characters/medaka-sore.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--5" src="characters/ranchu-isoge.png" alt="" aria-hidden="true">
   <h1>買い物リスト</h1>
 </header>
 
