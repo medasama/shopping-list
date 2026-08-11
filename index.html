@@ -547,11 +547,15 @@
   <img class="footer-medaka" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const CATEGORIES = ['食品','日用品','その他'];
-  const STORAGE_KEY = 'shoppingListItems_v1';
+  const SUPABASE_URL = 'https://edfrjxjdzxutcjeayfac.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_GVtanlT_gDwSEQSsZPC_NQ_nEK-60x2';
+  const TABLE = 'shopping_items';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let items = loadItems();
+  let items = [];
   let activeCategory = 'すべて';
   let justAddedId = null;
   const removingIds = new Set();
@@ -562,52 +566,94 @@
   const addBtn = document.getElementById('addBtn');
   const categoryTabs = document.getElementById('categoryTabs');
 
-  function loadItems(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return parsed.filter(i => !i.checked);
-    }catch(e){
+  async function loadItems(){
+    const { data, error } = await sb
+      .from(TABLE)
+      .select('*')
+      .eq('checked', false)
+      .order('created_at', { ascending: false });
+    if(error){
+      console.error('loadItems failed', error);
       return [];
     }
+    return data;
   }
 
-  function saveItems(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }
-
-  function addItem(name, category){
+  async function addItem(name, category){
     if(!name.trim()) return;
-    const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-    items.unshift({
-      id,
-      name: name.trim(),
-      category: category || '食品'
-    });
-    justAddedId = id;
-    saveItems();
+    const { data, error } = await sb
+      .from(TABLE)
+      .insert({ name: name.trim(), category: category || '食品', checked: false })
+      .select()
+      .single();
+    if(error){
+      console.error('addItem failed', error);
+      return;
+    }
+    justAddedId = data.id;
+    items.unshift(data);
     render();
   }
 
-  function completeItem(id){
+  async function completeItem(id){
     if(removingIds.has(id)) return;
     const it = items.find(i => i.id === id);
     if(!it) return;
     removingIds.add(id);
     render();
-    setTimeout(()=>{
+    const { error } = await sb.from(TABLE).update({ checked: true }).eq('id', id);
+    if(error) console.error('completeItem update failed', error);
+    setTimeout(async ()=>{
+      const { error: delError } = await sb.from(TABLE).delete().eq('id', id);
+      if(delError) console.error('completeItem delete failed', delError);
       items = items.filter(i => i.id !== id);
       removingIds.delete(id);
-      saveItems();
       render();
     }, 500);
   }
 
-  function deleteItem(id){
+  async function deleteItem(id){
     items = items.filter(i => i.id !== id);
     removingIds.delete(id);
-    saveItems();
     render();
+    const { error } = await sb.from(TABLE).delete().eq('id', id);
+    if(error) console.error('deleteItem failed', error);
+  }
+
+  function subscribeRealtime(){
+    sb.channel('shopping_items_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload)=>{
+        if(payload.eventType === 'INSERT'){
+          const row = payload.new;
+          if(!row.checked && !items.find(i => i.id === row.id)){
+            items.unshift(row);
+            render();
+          }
+        } else if(payload.eventType === 'UPDATE'){
+          const row = payload.new;
+          const idx = items.findIndex(i => i.id === row.id);
+          if(row.checked){
+            if(idx !== -1 && !removingIds.has(row.id)){
+              removingIds.add(row.id);
+              render();
+              setTimeout(()=>{
+                items = items.filter(i => i.id !== row.id);
+                removingIds.delete(row.id);
+                render();
+              }, 500);
+            }
+          } else if(idx !== -1){
+            items[idx] = row;
+            render();
+          }
+        } else if(payload.eventType === 'DELETE'){
+          const oldId = payload.old.id;
+          items = items.filter(i => i.id !== oldId);
+          removingIds.delete(oldId);
+          render();
+        }
+      })
+      .subscribe();
   }
 
   function renderCategoryTabs(){
@@ -698,20 +744,28 @@
   categorySelect.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
 
   addBtn.addEventListener('click', ()=>{
-    addItem(itemInput.value, categorySelect.value);
+    const value = itemInput.value;
     itemInput.value = '';
     itemInput.focus();
+    addItem(value, categorySelect.value);
   });
 
   itemInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
-      addItem(itemInput.value, categorySelect.value);
+      const value = itemInput.value;
       itemInput.value = '';
+      addItem(value, categorySelect.value);
     }
   });
 
-  render();
-  setupTapBounce();
+  async function init(){
+    items = await loadItems();
+    render();
+    setupTapBounce();
+    subscribeRealtime();
+  }
+  init();
+
   window.addEventListener('scroll', updateCornerFishVisibility, { passive: true });
   window.addEventListener('resize', updateCornerFishVisibility);
   window.addEventListener('load', updateCornerFishVisibility);
