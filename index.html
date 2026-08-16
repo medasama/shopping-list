@@ -82,8 +82,8 @@
     pointer-events:none;
     z-index:0;
   }
-  .header-sparkle--1{ top:16px; left:64px; width:16px; transform:rotate(-10deg); }
-  .header-sparkle--2{ top:22px; right:80px; width:13px; transform:rotate(12deg); }
+  .header-sparkle--1{ top:calc(env(safe-area-inset-top) + 16px); left:64px; width:16px; transform:rotate(-10deg); }
+  .header-sparkle--2{ top:calc(env(safe-area-inset-top) + 22px); right:80px; width:13px; transform:rotate(12deg); }
   .header-sparkle--3{ bottom:18px; left:104px; width:11px; transform:rotate(6deg); }
   .header-sparkle--4{ bottom:22px; right:112px; width:15px; transform:rotate(-14deg); }
   .header-swim{
@@ -93,14 +93,14 @@
     z-index:0;
   }
   .header-swim--1{ bottom:6px; left:12px; width:42px; animation:bob-hswim1 3.4s ease-in-out infinite; }
-  .header-swim--2{ top:10px; right:16px; width:34px; animation:bob-hswim2 3.8s ease-in-out infinite; animation-delay:0.3s; }
+  .header-swim--2{ top:calc(env(safe-area-inset-top) + 10px); right:16px; width:34px; animation:bob-hswim2 3.8s ease-in-out infinite; animation-delay:0.3s; }
   .header-swim--3{ bottom:0; right:4px; width:66px; opacity:0.95; animation:bob-hswim3 4.2s ease-in-out infinite; animation-delay:0.5s; }
-  .header-swim--4{ top:10px; left:80px; width:32px; animation:bob-hswim4 3.6s ease-in-out infinite; animation-delay:0.15s; }
+  .header-swim--4{ top:calc(env(safe-area-inset-top) + 10px); left:80px; width:32px; animation:bob-hswim4 3.6s ease-in-out infinite; animation-delay:0.15s; }
   .header-swim--5{ bottom:6px; right:84px; width:32px; animation:bob-hswim5 3.9s ease-in-out infinite; animation-delay:0.4s; }
-  .header-swim--6{ top:12px; left:16px; width:30px; animation:bob-hswim6 3.3s ease-in-out infinite; animation-delay:0.2s; }
-  .header-swim--7{ top:36px; left:40px; width:22px; opacity:0.9; animation:bob-hswim7 3.7s ease-in-out infinite; animation-delay:0.55s; }
-  .header-swim--8{ top:2px; left:148px; width:19px; animation:bob-hswim8 3.5s ease-in-out infinite; animation-delay:0.1s; }
-  .header-swim--9{ top:3px; right:148px; width:18px; animation:bob-hswim9 3.9s ease-in-out infinite; animation-delay:0.45s; }
+  .header-swim--6{ top:calc(env(safe-area-inset-top) + 12px); left:16px; width:30px; animation:bob-hswim6 3.3s ease-in-out infinite; animation-delay:0.2s; }
+  .header-swim--7{ top:calc(env(safe-area-inset-top) + 36px); left:40px; width:22px; opacity:0.9; animation:bob-hswim7 3.7s ease-in-out infinite; animation-delay:0.55s; }
+  .header-swim--8{ top:calc(env(safe-area-inset-top) + 2px); left:148px; width:19px; animation:bob-hswim8 3.5s ease-in-out infinite; animation-delay:0.1s; }
+  .header-swim--9{ top:calc(env(safe-area-inset-top) + 3px); right:148px; width:18px; animation:bob-hswim9 3.9s ease-in-out infinite; animation-delay:0.45s; }
   @keyframes bob-hswim1{
     0%,100%{ transform:rotate(-5deg) translateY(0); }
     50%{ transform:rotate(-2deg) translateY(-4px); }
@@ -324,24 +324,34 @@
     60%{ transform:scale(1.3) rotate(8deg); }
     100%{ transform:scale(1) rotate(0deg); }
   }
+  .item-cat-wrap{
+    position:relative;
+    flex:0 0 auto;
+  }
   .item-cat{
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    border:none;
+    font-family:inherit;
     font-size:12.5px;
     font-weight:600;
     color:var(--accent-dark);
     background:var(--accent-soft);
-    padding:4px 10px 4px 11px;
+    padding:4px 22px 4px 11px;
     border-radius:999px;
-    flex:0 0 auto;
     cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:2px;
-    user-select:none;
   }
-  .item-cat::after{
+  .item-cat-wrap::after{
     content:"⌄";
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
     font-size:11px;
+    color:var(--accent-dark);
     opacity:0.65;
+    pointer-events:none;
   }
   .item-cat.cat-pulse{
     animation:cat-pulse-kf 0.4s ease;
@@ -434,12 +444,8 @@
     z-index:-1;
     transition:opacity 0.4s ease, transform 0.4s ease;
   }
-  .bg-fish--br{ right:6px; bottom:6px; width:150px; opacity:0.95; animation:bob-br 4.5s ease-in-out infinite; pointer-events:auto; cursor:grab; z-index:1; }
-  .bg-fish--bl{ left:6px; bottom:6px; width:130px; opacity:0.7; animation:bob-bl 5s ease-in-out infinite; animation-delay:0.3s; pointer-events:auto; cursor:grab; z-index:1; }
-  .bg-fish--tl{ left:2px; top:calc(env(safe-area-inset-top) + 128px); width:64px; opacity:0.65; animation:bob-tl 3.8s ease-in-out infinite; animation-delay:0.2s; pointer-events:auto; cursor:grab; z-index:1; }
-  .bg-fish--tr{ right:2px; top:calc(env(safe-area-inset-top) + 150px); width:56px; opacity:0.7; animation:bob-tr 4.1s ease-in-out infinite; animation-delay:0.5s; pointer-events:auto; cursor:grab; z-index:1; }
-  .bg-fish--ml{ left:-4px; top:48%; width:62px; opacity:0.6; animation:bob-ml 4.3s ease-in-out infinite; animation-delay:0.35s; pointer-events:auto; cursor:grab; z-index:1; }
-  .bg-fish--mr{ right:-4px; top:38%; width:58px; opacity:0.62; animation:bob-mr 4.7s ease-in-out infinite; animation-delay:0.1s; pointer-events:auto; cursor:grab; z-index:1; }
+  .bg-fish--br{ right:6px; bottom:6px; width:140px; opacity:0.95; animation:bob-br 4.5s ease-in-out infinite; pointer-events:auto; cursor:grab; z-index:1; }
+  .bg-fish--bl{ left:6px; bottom:6px; width:120px; opacity:0.75; animation:bob-bl 5s ease-in-out infinite; animation-delay:0.3s; pointer-events:auto; cursor:grab; z-index:1; }
   .bg-fish--hidden{
     opacity:0 !important;
     pointer-events:none !important;
@@ -452,22 +458,6 @@
   @keyframes bob-bl{
     0%,100%{ transform:scaleX(-1) rotate(7deg) translateY(0); }
     50%{ transform:scaleX(-1) rotate(5deg) translateY(-6px); }
-  }
-  @keyframes bob-tl{
-    0%,100%{ transform:rotate(-4deg) translateY(0); }
-    50%{ transform:rotate(-1deg) translateY(-5px); }
-  }
-  @keyframes bob-tr{
-    0%,100%{ transform:scaleX(-1) rotate(5deg) translateY(0); }
-    50%{ transform:scaleX(-1) rotate(2deg) translateY(-5px); }
-  }
-  @keyframes bob-ml{
-    0%,100%{ transform:rotate(3deg) translateY(0); }
-    50%{ transform:rotate(6deg) translateY(-6px); }
-  }
-  @keyframes bob-mr{
-    0%,100%{ transform:scaleX(-1) rotate(-3deg) translateY(0); }
-    50%{ transform:scaleX(-1) rotate(-6deg) translateY(-6px); }
   }
   .draggable-char{ touch-action:none; }
   .draggable-char.char-moving{
@@ -531,12 +521,8 @@
 <div class="ambient-bubble ambient-bubble--4" aria-hidden="true"></div>
 <div class="ambient-bubble ambient-bubble--5" aria-hidden="true"></div>
 <div class="ambient-bubble ambient-bubble--6" aria-hidden="true"></div>
-<img class="bg-fish bg-fish--br draggable-char" src="characters/medaka-sore.png" alt="" aria-hidden="true">
+<img class="bg-fish bg-fish--br draggable-char" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
 <img class="bg-fish bg-fish--bl draggable-char" src="characters/medaka-main.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--tl draggable-char" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--tr draggable-char" src="characters/medaka-thanks2.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--ml draggable-char" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
-<img class="bg-fish bg-fish--mr draggable-char" src="characters/medaka-main.png" alt="" aria-hidden="true">
 
 <header>
   <svg class="header-sparkle header-sparkle--1" viewBox="0 0 24 24" fill="#ffe9a8" aria-hidden="true"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>
@@ -546,11 +532,11 @@
   <img class="header-swim header-swim--1" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--2" src="characters/medaka-main.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--3" src="characters/medaka-thanks2.png" alt="" aria-hidden="true">
-  <img class="header-swim header-swim--4" src="characters/medaka-sore.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--4" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--5" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--6" src="characters/medaka-main.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--7" src="characters/medaka-thanks2.png" alt="" aria-hidden="true">
-  <img class="header-swim header-swim--8" src="characters/medaka-sore.png" alt="" aria-hidden="true">
+  <img class="header-swim header-swim--8" src="characters/medaka-main.png" alt="" aria-hidden="true">
   <img class="header-swim header-swim--9" src="characters/medaka-kihon.png" alt="" aria-hidden="true">
   <h1>買い物リスト</h1>
 </header>
@@ -574,7 +560,7 @@
   <ul class="list" id="list"></ul>
   <div class="empty" id="emptyMsg" style="display:none;">
     <div class="empty-mascots">
-      <img class="empty-mascot draggable-char" src="characters/medaka-thanks2.png" alt="メダカ">
+      <img class="empty-mascot draggable-char" src="characters/medaka-main.png" alt="メダカ">
     </div>
     <p>リストはからっぽです<br>上から追加してね</p>
   </div>
@@ -649,11 +635,9 @@
     }, 500);
   }
 
-  async function changeCategory(id){
+  async function changeCategory(id, newCategory){
     const it = items.find(i => i.id === id);
-    if(!it) return;
-    const idx = CATEGORIES.indexOf(it.category);
-    const newCategory = CATEGORIES[(idx + 1) % CATEGORIES.length];
+    if(!it || it.category === newCategory) return;
     it.category = newCategory;
     render();
     const catEl = listEl.querySelector(`li[data-id="${id}"] .item-cat`);
@@ -741,7 +725,11 @@
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <div class="item-name">${isRemoving ? `<img class="item-fish item-fish--pop" src="characters/medaka-kihon.png" alt="">` : ''}${escapeHtml(i.name)}</div>
-          <div class="item-cat" data-action="cat" title="タップしてカテゴリを変更">${escapeHtml(i.category)}</div>
+          <div class="item-cat-wrap">
+            <select class="item-cat" aria-label="カテゴリを選択">
+              ${CATEGORIES.map(c => `<option value="${c}" ${c === i.category ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+            </select>
+          </div>
           <button class="del-btn" data-action="delete">✕</button>
           ${i.id===justAddedId ? '<span class="add-bubble add-bubble--1"></span><span class="add-bubble add-bubble--2"></span><span class="add-bubble add-bubble--3"></span>' : ''}
         </li>
@@ -835,9 +823,14 @@
       deleteItem(id);
     } else if(action === 'toggle'){
       completeItem(id);
-    } else if(action === 'cat'){
-      changeCategory(id);
     }
+  });
+
+  listEl.addEventListener('change', (e)=>{
+    const select = e.target.closest('select.item-cat');
+    if(!select) return;
+    const li = select.closest('li.item');
+    changeCategory(li.dataset.id, select.value);
   });
 
   const categorySelect = document.getElementById('categorySelect');
