@@ -570,13 +570,9 @@
   <img class="footer-medaka draggable-char" src="characters/medaka-main.png" alt="" aria-hidden="true">
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const CATEGORIES = ['食品','日用品','その他'];
-  const SUPABASE_URL = 'https://edfrjxjdzxutcjeayfac.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_GVtanlT_gDwSEQSsZPC_NQ_nEK-60x2';
-  const TABLE = 'shopping_items';
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const STORAGE_KEY = 'shopping_items';
 
   let items = [];
   let activeCategory = 'すべて';
@@ -589,53 +585,61 @@
   const addBtn = document.getElementById('addBtn');
   const categoryTabs = document.getElementById('categoryTabs');
 
-  async function loadItems(){
-    const { data, error } = await sb
-      .from(TABLE)
-      .select('*')
-      .eq('checked', false)
-      .order('created_at', { ascending: false });
-    if(error){
-      console.error('loadItems failed', error);
+  function readAll(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(err){
+      console.error('readAll failed', err);
       return [];
     }
-    return data;
   }
 
-  async function addItem(name, category){
+  function writeAll(all){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  }
+
+  function loadItems(){
+    return readAll()
+      .filter(i => !i.checked)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  function addItem(name, category){
     if(!name.trim()) return;
-    const { data, error } = await sb
-      .from(TABLE)
-      .insert({ name: name.trim(), category: category || '食品', checked: false })
-      .select()
-      .single();
-    if(error){
-      console.error('addItem failed', error);
-      return;
-    }
-    justAddedId = data.id;
-    items.unshift(data);
+    const all = readAll();
+    const newItem = {
+      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+      name: name.trim(),
+      category: category || '食品',
+      checked: false,
+      created_at: new Date().toISOString()
+    };
+    all.unshift(newItem);
+    writeAll(all);
+    justAddedId = newItem.id;
+    items.unshift(newItem);
     render();
   }
 
-  async function completeItem(id){
+  function completeItem(id){
     if(removingIds.has(id)) return;
     const it = items.find(i => i.id === id);
     if(!it) return;
     removingIds.add(id);
     render();
-    const { error } = await sb.from(TABLE).update({ checked: true }).eq('id', id);
-    if(error) console.error('completeItem update failed', error);
-    setTimeout(async ()=>{
-      const { error: delError } = await sb.from(TABLE).delete().eq('id', id);
-      if(delError) console.error('completeItem delete failed', delError);
+    const all = readAll();
+    const idx = all.findIndex(i => i.id === id);
+    if(idx !== -1){ all[idx].checked = true; writeAll(all); }
+    setTimeout(()=>{
+      writeAll(readAll().filter(i => i.id !== id));
       items = items.filter(i => i.id !== id);
       removingIds.delete(id);
       render();
     }, 500);
   }
 
-  async function changeCategory(id, newCategory){
+  function changeCategory(id, newCategory){
     const it = items.find(i => i.id === id);
     if(!it || it.category === newCategory) return;
     it.category = newCategory;
@@ -645,52 +649,16 @@
       catEl.classList.add('cat-pulse');
       catEl.addEventListener('animationend', ()=> catEl.classList.remove('cat-pulse'), { once:true });
     }
-    const { error } = await sb.from(TABLE).update({ category: newCategory }).eq('id', id);
-    if(error) console.error('changeCategory failed', error);
+    const all = readAll();
+    const idx = all.findIndex(i => i.id === id);
+    if(idx !== -1){ all[idx].category = newCategory; writeAll(all); }
   }
 
-  async function deleteItem(id){
+  function deleteItem(id){
     items = items.filter(i => i.id !== id);
     removingIds.delete(id);
     render();
-    const { error } = await sb.from(TABLE).delete().eq('id', id);
-    if(error) console.error('deleteItem failed', error);
-  }
-
-  function subscribeRealtime(){
-    sb.channel('shopping_items_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload)=>{
-        if(payload.eventType === 'INSERT'){
-          const row = payload.new;
-          if(!row.checked && !items.find(i => i.id === row.id)){
-            items.unshift(row);
-            render();
-          }
-        } else if(payload.eventType === 'UPDATE'){
-          const row = payload.new;
-          const idx = items.findIndex(i => i.id === row.id);
-          if(row.checked){
-            if(idx !== -1 && !removingIds.has(row.id)){
-              removingIds.add(row.id);
-              render();
-              setTimeout(()=>{
-                items = items.filter(i => i.id !== row.id);
-                removingIds.delete(row.id);
-                render();
-              }, 500);
-            }
-          } else if(idx !== -1){
-            items[idx] = row;
-            render();
-          }
-        } else if(payload.eventType === 'DELETE'){
-          const oldId = payload.old.id;
-          items = items.filter(i => i.id !== oldId);
-          removingIds.delete(oldId);
-          render();
-        }
-      })
-      .subscribe();
+    writeAll(readAll().filter(i => i.id !== id));
   }
 
   function renderCategoryTabs(){
@@ -851,12 +819,11 @@
     }
   });
 
-  async function init(){
-    items = await loadItems();
+  function init(){
+    items = loadItems();
     render();
     setupTapBounce();
     setupDraggableChars();
-    subscribeRealtime();
   }
   init();
 
