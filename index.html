@@ -614,7 +614,9 @@
       return;
     }
     justAddedId = data.id;
-    items.unshift(data);
+    if(!items.find(i => i.id === data.id)){
+      items.unshift(data);
+    }
     render();
   }
 
@@ -657,8 +659,14 @@
     if(error) console.error('deleteItem failed', error);
   }
 
+  let realtimeChannel = null;
+
   function subscribeRealtime(){
-    sb.channel('shopping_items_changes')
+    if(realtimeChannel){
+      sb.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+    realtimeChannel = sb.channel('shopping_items_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload)=>{
         if(payload.eventType === 'INSERT'){
           const row = payload.new;
@@ -690,7 +698,20 @@
           render();
         }
       })
-      .subscribe();
+      .subscribe((status)=>{
+        if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+          // 接続が切れた間の変更を取りこぼしている可能性があるため、
+          // 再購読とあわせて最新状態を取り直す。
+          resyncItems();
+          setTimeout(subscribeRealtime, 1000);
+        }
+      });
+  }
+
+  async function resyncItems(){
+    const fresh = await loadItems();
+    items = fresh;
+    render();
   }
 
   function renderCategoryTabs(){
@@ -859,6 +880,16 @@
     subscribeRealtime();
   }
   init();
+
+  // バックグラウンドから復帰した際、その間の追加・削除の取りこぼしがないよう再同期する
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible'){
+      resyncItems();
+    }
+  });
+  window.addEventListener('pageshow', (e)=>{
+    if(e.persisted) resyncItems();
+  });
 
   window.addEventListener('scroll', updateCornerFishVisibility, { passive: true });
   window.addEventListener('resize', updateCornerFishVisibility);
