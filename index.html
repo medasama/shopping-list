@@ -597,27 +597,58 @@
       .order('created_at', { ascending: false });
     if(error){
       console.error('loadItems failed', error);
-      return [];
+      return null;
     }
     return data;
   }
 
+  function showToast(msg){
+    let el = document.getElementById('appToast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'appToast';
+      el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:90%;padding:10px 16px;border-radius:12px;background:rgba(40,40,40,.92);color:#fff;font-size:14px;z-index:9999;pointer-events:none;transition:opacity .3s;opacity:0;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>{ el.style.opacity = '0'; }, 3500);
+  }
+
+  let pendingAdds = 0;
+  let addEpoch = 0; // 追加の開始・完了ごとに進める。再同期中に動いたら古い結果とみなす
+
+  // 保存に成功したら true。失敗時は呼び出し側で入力内容を戻す。
   async function addItem(name, category){
-    if(!name.trim()) return;
-    const { data, error } = await sb
-      .from(TABLE)
-      .insert({ name: name.trim(), category: category || '食品', checked: false })
-      .select()
-      .single();
-    if(error){
+    if(!name.trim()) return true;
+    pendingAdds++;
+    addEpoch++;
+    let result;
+    try{
+      result = await sb
+        .from(TABLE)
+        .insert({ name: name.trim(), category: category || '食品', checked: false })
+        .select()
+        .single();
+    }catch(e){
+      result = { error: e };
+    }finally{
+      pendingAdds--;
+      addEpoch++;
+    }
+    const { data, error } = result;
+    if(error || !data){
       console.error('addItem failed', error);
-      return;
+      showToast('追加できませんでした。通信を確認してもう一度試してね');
+      return false;
     }
     justAddedId = data.id;
     if(!items.find(i => i.id === data.id)){
       items.unshift(data);
     }
     render();
+    return true;
   }
 
   async function completeItem(id){
@@ -661,12 +692,28 @@
 
   let realtimeChannel = null;
 
+  let reconnectTimer = null;
+  let reconnectDelay = 1000;
+
+  function scheduleReconnect(){
+    if(reconnectTimer) return;
+    reconnectTimer = setTimeout(()=>{
+      reconnectTimer = null;
+      subscribeRealtime();
+    }, reconnectDelay);
+    reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+  }
+
   function subscribeRealtime(){
     if(realtimeChannel){
-      sb.removeChannel(realtimeChannel);
+      // 自分で閉じる際に届く CLOSED で再接続が連鎖しないよう、先に参照を外す
+      const old = realtimeChannel;
       realtimeChannel = null;
+      sb.removeChannel(old);
     }
-    realtimeChannel = sb.channel('shopping_items_changes')
+    const channel = sb.channel('shopping_items_changes');
+    realtimeChannel = channel;
+    channel
       .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload)=>{
         if(payload.eventType === 'INSERT'){
           const row = payload.new;
@@ -699,18 +746,30 @@
         }
       })
       .subscribe((status)=>{
-        if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
+        // 古いチャンネル(自分で閉じたもの)からの通知は無視する
+        if(channel !== realtimeChannel) return;
+        if(status === 'SUBSCRIBED'){
+          reconnectDelay = 1000;
+        } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED'){
           // 接続が切れた間の変更を取りこぼしている可能性があるため、
           // 再購読とあわせて最新状態を取り直す。
           resyncItems();
-          setTimeout(subscribeRealtime, 1000);
+          scheduleReconnect();
         }
       });
   }
 
+  let resyncSeq = 0;
+
   async function resyncItems(){
+    const seq = ++resyncSeq;
+    const epoch = addEpoch;
     const fresh = await loadItems();
-    items = fresh;
+    // 取得失敗、より新しい再同期がある、追加と重なった場合は上書きしない
+    if(fresh === null || seq !== resyncSeq || epoch !== addEpoch || pendingAdds > 0) return;
+    const pending = items.filter(i => removingIds.has(i.id));
+    const freshIds = new Set(fresh.map(i => i.id));
+    items = fresh.concat(pending.filter(i => !freshIds.has(i.id)));
     render();
   }
 
@@ -861,19 +920,23 @@
     const value = itemInput.value;
     itemInput.value = '';
     itemInput.focus();
-    addItem(value, categorySelect.value);
+    addItem(value, categorySelect.value).then(ok => {
+      if(!ok && !itemInput.value) itemInput.value = value;
+    });
   });
 
   itemInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
       const value = itemInput.value;
       itemInput.value = '';
-      addItem(value, categorySelect.value);
+      addItem(value, categorySelect.value).then(ok => {
+        if(!ok && !itemInput.value) itemInput.value = value;
+      });
     }
   });
 
   async function init(){
-    items = await loadItems();
+    items = (await loadItems()) || [];
     render();
     setupTapBounce();
     setupDraggableChars();
