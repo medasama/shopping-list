@@ -657,15 +657,28 @@
     if(!it) return;
     removingIds.add(id);
     render();
-    const { error } = await sb.from(TABLE).update({ checked: true }).eq('id', id);
-    if(error) console.error('completeItem update failed', error);
-    setTimeout(async ()=>{
-      const { error: delError } = await sb.from(TABLE).delete().eq('id', id);
-      if(delError) console.error('completeItem delete failed', delError);
-      items = items.filter(i => i.id !== id);
-      removingIds.delete(id);
-      render();
-    }, 500);
+    // DB削除とアニメーション(500ms)を並行して待ち、DB削除に成功したときだけ画面から外す
+    const [delResult] = await Promise.all([
+      sb.from(TABLE).delete().eq('id', id).then(r => r, e => ({ error: e })),
+      new Promise(resolve => setTimeout(resolve, 500))
+    ]);
+    removingIds.delete(id);
+    if(delResult.error){
+      console.error('completeItem delete failed', delResult.error);
+      restoreItem(it);
+      showToast('通信に失敗したので、品目を元に戻しました');
+      return;
+    }
+    items = items.filter(i => i.id !== id);
+    render();
+  }
+
+  function restoreItem(it){
+    if(!items.find(i => i.id === it.id)){
+      items.push(it);
+      items.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+    }
+    render();
   }
 
   async function changeCategory(id, newCategory){
@@ -683,11 +696,16 @@
   }
 
   async function deleteItem(id){
+    const it = items.find(i => i.id === id);
     items = items.filter(i => i.id !== id);
     removingIds.delete(id);
     render();
-    const { error } = await sb.from(TABLE).delete().eq('id', id);
-    if(error) console.error('deleteItem failed', error);
+    const { error } = await sb.from(TABLE).delete().eq('id', id).then(r => r, e => ({ error: e }));
+    if(error){
+      console.error('deleteItem failed', error);
+      if(it) restoreItem(it);
+      showToast('通信に失敗したので、品目を元に戻しました');
+    }
   }
 
   let realtimeChannel = null;
@@ -740,9 +758,11 @@
           }
         } else if(payload.eventType === 'DELETE'){
           const oldId = payload.old.id;
-          items = items.filter(i => i.id !== oldId);
-          removingIds.delete(oldId);
-          render();
+          // 自分の完了アニメーション中は、その処理側で画面から外す
+          if(!removingIds.has(oldId)){
+            items = items.filter(i => i.id !== oldId);
+            render();
+          }
         }
       })
       .subscribe((status)=>{
