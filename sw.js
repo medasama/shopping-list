@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopping-list-v18';
+const CACHE_NAME = 'shopping-list-v19';
 const STATIC_ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
@@ -30,6 +30,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Supabase など他オリジンへの通信は触らない。品目リストをキャッシュすると、
+  // 削除・追加が反映されず古いリストが返り続けるため。
+  if (new URL(event.request.url).origin !== self.location.origin) return;
 
   // ページ本体（ナビゲーション）は常にネットワークから直接取得する。
   // リダイレクトを含むレスポンスをキャッシュ経由で返すと、
