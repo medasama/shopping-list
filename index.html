@@ -570,9 +570,17 @@
   <img class="footer-medaka draggable-char" src="characters/medaka-main.png" alt="" aria-hidden="true">
 </div>
 
+<script src="config.js"></script>
+<script>
+  // 保存先は config.js の storage で切り替える。未設定なら端末内保存（外部に接続しない）。
+  (function(){
+    var s = (window.APP_CONFIG && window.APP_CONFIG.storage) === 'supabase' ? 'supabase' : 'local';
+    if(s === 'supabase') document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');
+    document.write('<script src="store-' + s + '.js"><\/script>');
+  })();
+</script>
 <script>
   const CATEGORIES = ['食品','日用品','その他'];
-  const STORAGE_KEY = 'shopping_items';
 
   let items = [];
   let activeCategory = 'すべて';
@@ -585,81 +593,20 @@
   const addBtn = document.getElementById('addBtn');
   const categoryTabs = document.getElementById('categoryTabs');
 
-  function readAll(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    }catch(err){
-      console.error('readAll failed', err);
-      return [];
+  function showToast(msg){
+    let el = document.getElementById('appToast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'appToast';
+      el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:90%;padding:10px 16px;border-radius:12px;background:rgba(40,40,40,.92);color:#fff;font-size:14px;z-index:9999;pointer-events:none;transition:opacity .3s;opacity:0;';
+      document.body.appendChild(el);
     }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>{ el.style.opacity = '0'; }, 3500);
   }
 
-  function writeAll(all){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  }
-
-  function loadItems(){
-    return readAll()
-      .filter(i => !i.checked)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  }
-
-  function addItem(name, category){
-    if(!name.trim()) return;
-    const all = readAll();
-    const newItem = {
-      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-      name: name.trim(),
-      category: category || '食品',
-      checked: false,
-      created_at: new Date().toISOString()
-    };
-    all.unshift(newItem);
-    writeAll(all);
-    justAddedId = newItem.id;
-    items.unshift(newItem);
-    render();
-  }
-
-  function completeItem(id){
-    if(removingIds.has(id)) return;
-    const it = items.find(i => i.id === id);
-    if(!it) return;
-    removingIds.add(id);
-    render();
-    const all = readAll();
-    const idx = all.findIndex(i => i.id === id);
-    if(idx !== -1){ all[idx].checked = true; writeAll(all); }
-    setTimeout(()=>{
-      writeAll(readAll().filter(i => i.id !== id));
-      items = items.filter(i => i.id !== id);
-      removingIds.delete(id);
-      render();
-    }, 500);
-  }
-
-  function changeCategory(id, newCategory){
-    const it = items.find(i => i.id === id);
-    if(!it || it.category === newCategory) return;
-    it.category = newCategory;
-    render();
-    const catEl = listEl.querySelector(`li[data-id="${id}"] .item-cat`);
-    if(catEl){
-      catEl.classList.add('cat-pulse');
-      catEl.addEventListener('animationend', ()=> catEl.classList.remove('cat-pulse'), { once:true });
-    }
-    const all = readAll();
-    const idx = all.findIndex(i => i.id === id);
-    if(idx !== -1){ all[idx].category = newCategory; writeAll(all); }
-  }
-
-  function deleteItem(id){
-    items = items.filter(i => i.id !== id);
-    removingIds.delete(id);
-    render();
-    writeAll(readAll().filter(i => i.id !== id));
-  }
 
   function renderCategoryTabs(){
     const cats = ['すべて', ...CATEGORIES];
@@ -808,24 +755,30 @@
     const value = itemInput.value;
     itemInput.value = '';
     itemInput.focus();
-    addItem(value, categorySelect.value);
+    addItem(value, categorySelect.value).then(ok => {
+      if(!ok && !itemInput.value) itemInput.value = value;
+    });
   });
 
   itemInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
       const value = itemInput.value;
       itemInput.value = '';
-      addItem(value, categorySelect.value);
+      addItem(value, categorySelect.value).then(ok => {
+        if(!ok && !itemInput.value) itemInput.value = value;
+      });
     }
   });
 
-  function init(){
-    items = loadItems();
+  async function init(){
+    items = (await loadItems()) || [];
     render();
     setupTapBounce();
     setupDraggableChars();
+    startSync();
   }
   init();
+
 
   window.addEventListener('scroll', updateCornerFishVisibility, { passive: true });
   window.addEventListener('resize', updateCornerFishVisibility);
