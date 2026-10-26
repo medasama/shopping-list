@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopping-list-v19';
+const CACHE_NAME = 'shopping-list-v20';
 const STATIC_ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
@@ -45,17 +45,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // それ以外の静的ファイル（アイコンなど）はキャッシュ優先、なければネットワーク取得
+  // 画像・マニフェストはキャッシュ優先。
+  // JS・設定などのコードは常に最新を取りに行き、オフライン時だけキャッシュを使う。
+  // （古いコードが残り続けて、設定や保存処理が食い違うのを防ぐ）
+  const path = new URL(event.request.url).pathname;
+  const isStatic = event.request.destination === 'image' || path.endsWith('manifest.json');
+  if (isStatic) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response.ok && !response.redirected) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (response.ok && !response.redirected) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
-    })
+    fetch(event.request).then((response) => {
+      if (response.ok && !response.redirected) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => caches.match(event.request))
   );
 });
